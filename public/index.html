@@ -56,15 +56,6 @@
                     const fileId = xhr.getResponseHeader('X-File-Id');
                     window.top.location.href = '/' + fileId;
 
-                    /*
-                    let a = document.createElement('a');
-                    a.setAttribute('href', 'data:text/plain;charset=utf-8,' + responseBody);
-                    a.setAttribute('download', fileId+".js");
-                    a.style.display = 'none';
-                    document.body.appendChild(a);
-                    a.click();
-                    document.body.removeChild(a);
-                    */
                 };
                 XHR.onerror = event=> {
                     document.getElementById('content').classList.remove('loading');
