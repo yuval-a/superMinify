@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+    <head>
+        <meta http-equiv="content-type" content="text/html; charset=utf-8" />
+        <meta name="description" content="Super Minifier Pro 2000" />
+        <meta name="apple-mobile-web-app-capable" content="yes">
+        <meta name="viewport" content="width=device-width, initial-scale=1">
+        <link rel="stylesheet" href="css/style.css" />
+    </head>
+    <body>
+        <div id="content">
+            <h1>Super Minifier Pro 2000&trade;</h1>
+            <form id="upload_form">
+                <label for="js_file">Choose a JS file to minify...</label>
+                <br>
+                <input type="file" id="js_file" name="js_file" accept="text/plaintext" />
+                <label for="optimize_level">Optimization Level:</label>
+                <select id="optimize_level" name="optimize_level">
+                    <option value="WHITESPACE_ONLY">Very Simple</option>
+                    <option value="SIMPLE_OPTIMIZATIONS" selected>Simple</option>
+                    <option value="ADVANCED_OPTIMIZATIONS">Advanced</option>
+                </select>
+                <button type="submit">MINIFY</button>
+                <div id="information"></div>
+            </form>
+        </div>
+        <script>
+            const $info = document.getElementById('information');
+            document.getElementById('js_file').onchange = function() {
+                $info.textContent = "";
+                const fileName = this.files[0].name;
+                document.querySelector('label[for="js_file').textContent = fileName;
+            }
+            document.getElementById('optimize_level').onchange = function() {
+                $info.textContent = "";
+            }
+            document.getElementById('upload_form').onsubmit = function(event) {
+                event.preventDefault();
+                $info.textContent = "";
+                if (!document.getElementById('js_file').files.length) {
+                   $info.textContent = "Please select a JS file first!";
+                    return false;
+                }
+                document.getElementById('content').classList.add('loading');
+                const XHR = new XMLHttpRequest();
+                const FD = new FormData( this );
+                XHR.onload = event=> { 
+                    document.getElementById('content').classList.remove('loading');
+                    let xhr = event.target;
+                    if (xhr.status !== 200) {
+                        $info.textContent = "Error minifying file. Make sure the file is a valid JS file.";
+                        return false;
+                    }
+
+                    const responseBody = xhr.responseText;
+                    const fileId = xhr.getResponseHeader('X-File-Id');
+                    window.top.location.href = '/' + fileId;
+
+                    /*
+                    let a = document.createElement('a');
+                    a.setAttribute('href', 'data:text/plain;charset=utf-8,' + responseBody);
+                    a.setAttribute('download', fileId+".js");
+                    a.style.display = 'none';
+                    document.body.appendChild(a);
+                    a.click();
+                    document.body.removeChild(a);
+                    */
+                };
+                XHR.onerror = event=> {
+                    document.getElementById('content').classList.remove('loading');
+                    $info.textContent = "Error minifying file. Make sure the file is a valid JS file.";
+                };
+                XHR.open( "POST", "/" );
+                XHR.send(new FormData(this));
+              }
+
+        </script>
+    </body>
+</html>

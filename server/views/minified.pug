@@ -1,0 +1,87 @@
+doctype html
+html
+	head
+		meta(http-equiv="content-type" content="text/html; charset=utf-8")
+		meta(name="description" content="Super Minifier Pro 2000")
+		meta(name="apple-mobile-web-app-capable" content="yes")
+		meta(name="viewport" content="width=device-width, initial-scale=1")
+		link(rel="stylesheet" href="css/style.css")
+		link(rel="stylesheet" href="css/railscasts.css")
+		script(src="js/highlight.pack.js")
+	body
+		#container
+			header
+				h1
+					a(href="/")
+						| Super Minifier Pro 2000&trade;
+			div.code-box
+				h2.codebox-title Original
+				pre
+					code#originalContent.lang-javascript(contenteditable="", onblur="hljs.highlightAll();")
+
+			button.minify(onclick="doMinify()")
+				| Minify -->
+			div.code-box(contenteditable="")
+				h2.codebox-title Minified
+				pre
+					code#minifiedContent.lang-javascript(contenteditable="", onblur="hljs.highlightAll();")
+
+			button.delete(onclick="doDelete()")
+				| &times; Delete
+			script.
+				const $original = document.getElementById('originalContent');
+				const $minified = document.getElementById('minifiedContent');
+				Promise.all([
+					fetch('/generated_js_files/#{fileId}.js')
+					.then(response=>response.text())
+					.then(content=> {
+						$original.textContent = content;
+					}),
+
+					fetch('/generated_js_files/#{fileId}.min.js')
+					.then(response=>response.text())
+					.then(content=> {
+						$minified.textContent = content;
+					})
+				])
+				.then(()=> {
+					hljs.highlightAll();
+				});
+
+				const $container = document.getElementById('container');
+				async function doMinify() {
+					$container.classList.add('loading');
+					document.querySelector('button.minify').setAttribute('disabled', '');
+					const response = await fetch('/#{fileId}', { 
+						method: 'PUT', 
+						headers: { 'Content-Type': 'application/json' },
+						body: JSON.stringify({code: $original.textContent })  });
+					document.querySelector('button.minify').removeAttribute('disabled')
+					$container.classList.remove('loading');
+					 if (response.status !== 200) { 
+						 let text = await response.text();
+						 alert ("Error minifying code: " + text);
+						 return false;
+					 }
+					const minified = await response.text();
+					document.getElementById('minifiedContent').textContent = minified;
+					hljs.highlightAll();
+				}
+
+				async function doDelete() {
+					if (!confirm("Are you sure you want to delete this file?")) return false;
+					$container.classList.add('loading');
+					document.querySelector('button.delete').setAttribute('disabled', '');
+					const response = await fetch('/#{fileId}', { method: 'DELETE' });
+					document.querySelector('button.minify').removeAttribute('disabled');
+					$container.classList.remove('loading');
+					if (response.status !== 200) { 
+						let text = await response.text();
+						alert ("Error deleting file: " + text);
+						return false;
+					 }
+					 alert ('File Deleted successfully');
+					 window.top.location.href = "/";
+				}
+
+			
