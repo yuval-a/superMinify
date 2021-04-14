@@ -40,18 +40,17 @@ module.exports = function(app) {
             output_info: "compiled_code",
             js_code: file.data.toString('utf8')
         };
+
         const minifyResponse = 
             await performMinify(workerMinifyData)
-            .catch(error => { 
-                res.status(500).send(error);
-                return false;
+            .catch(()=> { 
+                return res.status(500);
             });
 
         if (minifyResponse.status == "error") {
-            res.status(500).send(minifyResponse.message);
-            return false;
+            return res.status(500); 
         }
-        // Use current date timestamp as a "file-id"
+
         res.set('X-File-Id', minifyResponse.fileId);
         res.send(minifyResponse.body);
     });
@@ -68,12 +67,10 @@ module.exports = function(app) {
         const minifyResponse = 
             await performMinify(workerMinifyData)
             .catch(error => { 
-                res.status(500).send(error);
-                return false;
+                return res.status(500).send(error);
             });
         if (minifyResponse.status == "error") {
-            res.status(500).send(minifyResponse.message);
-            return false;
+            return res.status(500).send(minifyResponse.message);
         }
         res.set('X-File-Id', minifyResponse.fileId);
         res.send(minifyResponse.body);
@@ -82,13 +79,13 @@ module.exports = function(app) {
     app.delete('/:fileId', (req, res)=> {
         fs.unlink('./public/generated_js_files/' + req.params.fileId + ".js", error => {
             if (error) {
-                res.status(500).send(error);
+                return res.status(500).send(error);
             }
         });
 
         fs.unlink('./public/generated_js_files/' + req.params.fileId + ".min.js", error => {
             if (error) {
-                res.status(500).send(error);
+                return res.status(500).send(error);
             }
             res.send("ok");
         });
