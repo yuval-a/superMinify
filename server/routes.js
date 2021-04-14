@@ -41,18 +41,16 @@ module.exports = function(app) {
             js_code: file.data.toString('utf8')
         };
 
-        const minifyResponse = 
-            await performMinify(workerMinifyData)
-            .catch(()=> { 
-                return res.status(500);
-            });
-
-        if (minifyResponse.status == "error") {
-            return res.status(500); 
-        }
-
-        res.set('X-File-Id', minifyResponse.fileId);
-        res.send(minifyResponse.body);
+        performMinify(workerMinifyData)
+        .then(
+            minifyResponse=> {
+                res.set('X-File-Id', minifyResponse.fileId);
+                res.send(minifyResponse.body);
+            },
+            error=> { 
+                return res.status(500).send(error); 
+            }
+        );
     });
 
     app.put('/:fileId', async (req,res)=> {
@@ -64,28 +62,28 @@ module.exports = function(app) {
             file_id: req.params.fileId
         };
 
-        const minifyResponse = 
-            await performMinify(workerMinifyData)
-            .catch(error => { 
-                return res.status(500).send(error);
-            });
-        if (minifyResponse.status == "error") {
-            return res.status(500).send(minifyResponse.message);
-        }
-        res.set('X-File-Id', minifyResponse.fileId);
-        res.send(minifyResponse.body);
+        performMinify(workerMinifyData)
+        .then(
+            minifyResponse=> {
+                res.set('X-File-Id', minifyResponse.fileId);
+                res.send(minifyResponse.body);
+            },
+            error=> { 
+                return res.status(500).send(error); 
+            }
+        );
     });
 
     app.delete('/:fileId', (req, res)=> {
         fs.unlink('./public/generated_js_files/' + req.params.fileId + ".js", error => {
             if (error) {
-                return res.status(500).send(error);
+                return res.status(500);
             }
         });
 
         fs.unlink('./public/generated_js_files/' + req.params.fileId + ".min.js", error => {
             if (error) {
-                return res.status(500).send(error);
+                return res.status(500);
             }
             res.send("ok");
         });

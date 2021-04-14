@@ -14,20 +14,23 @@ html
 				h1
 					a(href="/")
 						| Super Minifier Pro 2000&trade;
-			div.code-box
+			.code-box
 				h2.codebox-title Original
 				pre
 					code#originalContent.lang-javascript(contenteditable="", onblur="hljs.highlightAll();")
 
 			button.minify(onclick="doMinify()")
-				| Minify -->
-			div.code-box(contenteditable="")
+				| Minify &gt;
+			.code-box(contenteditable="")
 				h2.codebox-title Minified
 				pre
 					code#minifiedContent.lang-javascript(contenteditable="", onblur="hljs.highlightAll();")
-
-			button.delete(onclick="doDelete()")
-				| &times; Delete
+			.buttons
+				button.delete(onclick="doDelete()")
+					span(style="font-size:22px;vertical-align:middle;padding-right:10px") &times;
+					| Delete
+				button.download(onclick="doDownload()")
+					| Download
 			script.
 				const $original = document.getElementById('originalContent');
 				const $minified = document.getElementById('minifiedContent');
