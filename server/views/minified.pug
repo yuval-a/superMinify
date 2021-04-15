@@ -26,11 +26,12 @@ html
 				pre
 					code#minifiedContent.lang-javascript(contenteditable="", onblur="hljs.highlightAll();")
 			.buttons
+				button.download(onclick="doDownload()")
+					| Download
 				button.delete(onclick="doDelete()")
 					span(style="font-size:22px;vertical-align:middle;padding-right:10px") &times;
 					| Delete
-				button.download(onclick="doDownload()")
-					| Download
+
 			script.
 				const $original = document.getElementById('originalContent');
 				const $minified = document.getElementById('minifiedContent');
@@ -83,8 +84,16 @@ html
 						alert ("Error deleting file: " + text);
 						return false;
 					 }
-					 alert ('File Deleted successfully');
+					 alert ('File deleted successfully');
 					 window.top.location.href = "/";
 				}
 
-			
+				function doDownload() {
+					const data = 'data:text/plain;charset=utf-8,' + $minified.textContent;
+					const a = document.createElement('a');
+					a.setAttribute('href', data);
+					a.setAttribute('download', '#{fileId}.min.js');
+					document.body.appendChild(a);
+					a.click();
+					document.body.removeChild(a);
+				}

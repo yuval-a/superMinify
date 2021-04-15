@@ -29,7 +29,7 @@ module.exports = function(app) {
         res.render("minified", { fileId: req.params.fileId });
     });
 
-    app.post('/', async (req, res)=> {
+    app.post('/', (req, res)=> {
         const file = req.files.js_file;
         if (!file) res.json({status:"error", body: "No file found!"});
 
@@ -53,7 +53,7 @@ module.exports = function(app) {
         );
     });
 
-    app.put('/:fileId', async (req,res)=> {
+    app.put('/:fileId', (req,res)=> {
         const workerMinifyData = {
             compilation_level: "SIMPLE_OPTIMIZATIONS",
             output_format: "text",
